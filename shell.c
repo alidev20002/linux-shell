@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<signal.h>
 #include<unistd.h>
 #include<sys/types.h>
 #include<sys/wait.h>
@@ -16,7 +17,7 @@ void com_a(char* path) {
     ptr = fopen(path, "r");
  
     if (NULL == ptr) {
-        printf("file can't be opened \nuse this command as follow:\n\ta [path of your file]\n");
+        printf("file can't be opened \nuse this command as follow:\n\tfw [path of your file]\n");
     }
 
     while (!feof(ptr)) {
@@ -36,6 +37,26 @@ void com_a(char* path) {
 		}
 		if (next && ch != ' ' && ch != '\n') {
 			printf("%c", ch);
+		}
+    }
+    fclose(ptr);
+}
+
+void com_c(char* path) {
+    FILE* ptr;
+    char ch;
+
+    ptr = fopen(path, "r");
+ 
+    if (NULL == ptr) {
+        printf("file can't be opened \nuse this command as follow:\n\trs [path of your file]\n");
+    }
+
+ 
+    while (!feof(ptr)) {
+        ch = fgetc(ptr);
+        if (ch != ' ' && ch != '\n' && ch != '\t') {
+        	printf("%c", ch);
 		}
     }
     fclose(ptr);
@@ -86,9 +107,14 @@ void execArgs(char** parsed) {
     } else if (pid == 0) {
 		if (strcmp(parsed[0], "cd") == 0) {
 			chdir(parsed[1]);
-			printf("cd");
-		}else if (strcmp(parsed[0], "a") == 0) {
+		}else if (strcmp(parsed[0], "fw") == 0) {
 			com_a(parsed[1]);
+        }else if (strcmp(parsed[0], "rs") == 0) {
+			com_c(parsed[1]);
+        }else if (strcmp(parsed[0], "head") == 0) {
+			if (execvp(parsed[0], parsed) < 0) {
+				printf("\nCould not execute command..");
+			}
 		}else {
 			if (execvp(parsed[0], parsed) < 0) {
 				printf("\nCould not execute command..");
@@ -101,6 +127,9 @@ void execArgs(char** parsed) {
     }
 }
 
+void handle_sigint(int sig) {
+
+}
 
 
 int main() {
@@ -108,6 +137,8 @@ int main() {
 	char inputString[1000], *parsedArgs[100];
     char* parsedArgsPiped[100];
 	init_shell();
+
+    signal(SIGINT, handle_sigint);
   
     while (1) {
         printDir();
