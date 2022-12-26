@@ -403,9 +403,9 @@ void most_word(char* file){
 }
 
 void handle_sigint(int sig){
-    char prompt[3000];
-    getPrompt(prompt);
-    printf("%s\n",prompt);
+    rl_reset_line_state();
+    rl_replace_line("", 0);
+    rl_redisplay();
 }
 
    int main()
