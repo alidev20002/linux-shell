@@ -18,7 +18,7 @@
 void line_counter(char* file);
 void most_word(char* file);
 void getPrompt(char*);
-void save_commad(char*);
+void save_command(char*);
 
 void remove_commands(char* path) {
     FILE *ptr;
@@ -125,7 +125,7 @@ int takeInput(char* str){
     getPrompt(prompt);
     buf = readline(prompt);
     if (strlen(buf) != 0) {
-        save_commad(buf);
+        save_command(buf);
         add_history(buf);
         strcpy(str, buf);
         return 0;
@@ -134,7 +134,7 @@ int takeInput(char* str){
     }
 }
 
-void save_commad(char* com){
+void save_command(char* com){
     FILE* file= fopen("history.txt","a");
     if (NULL == file) {
         fprintf(stderr,"file can't be opened \n");
