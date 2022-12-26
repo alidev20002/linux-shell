@@ -206,24 +206,29 @@ int takeInput(char* str){
                case 2:
                    if (chdir(parsed[1]) != 0)
                        printf("chdir failed");
+                   exit(2);
+                   break;
                case 3:
                    openHelp();
+                   break;
+
                case 4:
                    username = getenv("USER");
                    printf("\nHello %s.\nMind that this is "
                           "not a place to play around."
                           "\nUse help to know more..\n",
                           username);
+                   break;
 
                case 5:
                    most_word(parsed[1]);
-
+                   break;
                case 6:
                    remove_commands(parsed[1]);
-
+                   break;
                case 7:
                    line_counter(parsed[1]);
-
+                   break;
                default:
                    break;
            }
@@ -233,6 +238,8 @@ int takeInput(char* str){
            wait(&stat);
            if(WEXITSTATUS(stat)==1)
                exit(0);
+           else if(WEXITSTATUS(stat)==2)
+               chdir(parsed[1]);
        }
    }
 
