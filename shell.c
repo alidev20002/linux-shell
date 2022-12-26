@@ -403,8 +403,9 @@ void most_word(char* file){
 }
 
 void handle_sigint(int sig){
-   //printf("Caught signal %d\n", sig);
-    printf("\n");
+    char prompt[3000];
+    getPrompt(prompt);
+    printf("%s\n",prompt);
 }
 
    int main()
