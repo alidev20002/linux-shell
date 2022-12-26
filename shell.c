@@ -11,12 +11,14 @@
 
 #define MAXCOM 1000 // max number of letters to be supported
 #define MAXLIST 100 // max number of commands to be supported
-
+#define RED "\033[1;31m"
+#define BLUE "\033[1;34m"
 // Clearing the shell using escape sequences
 #define clear() printf("\033[H\033[J")
 void line_counter(char* file);
 void most_word(char* file);
 void getPrompt(char*);
+void save_commad(char*);
 
 void remove_commands(char* path) {
     FILE *ptr;
@@ -24,7 +26,7 @@ void remove_commands(char* path) {
     ptr = fopen(path, "a+");
 
     if (NULL == ptr) {
-        printf("file can't be opened \n");
+        fprintf(stderr,"file can't be opened \n");
     }
 
     while (fgets(str, 50, ptr) != NULL) {
@@ -35,39 +37,112 @@ void remove_commands(char* path) {
     fclose(ptr);
 }
 
+void com_a(char* path) {
+    FILE* ptr;
+    char ch;
+    int next = 1;
+    int newline = 1;
+
+    ptr = fopen(path, "r");
+
+    if (NULL == ptr) {
+        printf("file can't be opened \nuse this command as follow:\n\tfw [path of your file]\n");
+    }
+
+    while (!feof(ptr)) {
+        ch = fgetc(ptr);
+        if (ch == ' ') {
+            if (next) {
+                newline = 0;
+                printf("\n");
+            }
+            next = 0;
+        }else if (ch == '\n') {
+            if (newline) {
+                printf("\n");
+            }
+            newline = 1;
+            next = 1;
+        }
+        if (next && ch != ' ' && ch != '\n' && ch!=EOF) {
+            printf("%c", ch);
+        }
+    }
+    fclose(ptr);
+}
+
+void com_c(char* path) {
+    FILE* ptr;
+    char ch;
+
+    ptr = fopen(path, "r");
+
+    if (NULL == ptr) {
+        printf("file can't be opened \nuse this command as follow:\n\trs [path of your file]\n");
+    }
+
+
+    while (!feof(ptr)) {
+        ch = fgetc(ptr);
+        if (ch != ' ' && ch != '\n' && ch != '\t'  && ch!='\r' && ch!=EOF) {
+          printf("%c", ch);
+        }
+    }
+    fclose(ptr);
+}
+
+void com_g(char* file){
+    char cmd[100];
+    sprintf(cmd,"head %s",file);
+    system(cmd);
+}
+
 // Greeting shell during startup
-void init_shell()
-{
-    clear();
-    printf("\n\n\n\n******************"
-           "************************");
-    printf("\n\n\n\t****MY SHELL****");
-    printf("\n\n\t-USE AT YOUR OWN RISK-");
-    printf("\n\n\n\n*******************"
-           "***********************");
+void init_shell(){
+    system("clear");
+    printf(BLUE "   _     _     _     _     _     _     _     _     _   \n"
+           " _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ \n"
+           "|_   _|_   _|_   _|_   _|_   _|_   _|_   _|_   _|_   _|\n"
+           "  |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|  \n");
+    printf(RED "    _    _     ___             _   _    _    ____ ___ \n"
+           "   / \\  | |   |_ _|           | | | |  / \\  |  _ \\_ _|\n"
+           "  / _ \\ | |    | |    _____   | |_| | / _ \\ | | | | | \n"
+           " / ___ \\| |___ | |   |_____|  |  _  |/ ___ \\| |_| | | \n"
+           "/_/   \\_\\_____|___|           |_| |_/_/   \\_\\____/___|\n");
+    printf(BLUE "   _     _     _     _     _     _     _     _     _   \n"
+           " _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ _| |_ \n"
+           "|_   _|_   _|_   _|_   _|_   _|_   _|_   _|_   _|_   _|\n"
+           "  |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|   |_|  \n\033[0m");
     char* username = getenv("USER");
     printf("\n\n\nUSER is: @%s", username);
     printf("\n");
-    sleep(1);
-    clear();
 }
 
 // Function to take input
 int takeInput(char* str){
-   // char buf[MAXCOM];
-   // fgets(buf, MAXCOM, stdin);
     char* buf;
     char prompt[3000];
     getPrompt(prompt);
     buf = readline(prompt);
     if (strlen(buf) != 0) {
-        //buf[strlen(buf)-1]='\0';
+        save_commad(buf);
         add_history(buf);
         strcpy(str, buf);
         return 0;
     } else {
         return 1;
     }
+}
+
+void save_commad(char* com){
+    FILE* file= fopen("history.txt","a");
+    if (NULL == file) {
+        fprintf(stderr,"file can't be opened \n");
+    }
+    fputs(com,file);
+    fputs("\n",file);
+    fclose(file);
+
 }
 
    // Function to print Current Directory.
@@ -86,11 +161,11 @@ int takeInput(char* str){
        pid_t pid = fork();
 
        if (pid == -1) {
-           printf("\nFailed forking child..");
+           fprintf(stderr,"\nFailed forking child..");
            return;
        } else if (pid == 0) {
            if (execvp(parsed[0], parsed) < 0) {
-               printf("\nCould not execute command..");
+               fprintf(stderr,"\nCould not execute command..");
            }
            exit(0);
        } else {
@@ -108,12 +183,12 @@ int takeInput(char* str){
        pid_t p1, p2;
 
        if (pipe(pipefd) < 0) {
-           printf("\nPipe could not be initialized");
+           fprintf(stderr,"\nPipe could not be initialized");
            return;
        }
        p1 = fork();
        if (p1 < 0) {
-           printf("\nCould not fork");
+           fprintf(stderr,"\nCould not fork");
            return;
        }
 
@@ -125,7 +200,7 @@ int takeInput(char* str){
            close(pipefd[1]);
 
            if (execvp(parsed[0], parsed) < 0) {
-               printf("\nCould not execute command 1..");
+               fprintf(stderr,"\nCould not execute command 1..");
                exit(0);
            }
        } else {
@@ -133,7 +208,7 @@ int takeInput(char* str){
            p2 = fork();
 
            if (p2 < 0) {
-               printf("\nCould not fork");
+               fprintf(stderr,"\nCould not fork");
                return;
            }
 
@@ -144,7 +219,7 @@ int takeInput(char* str){
                dup2(pipefd[0], STDIN_FILENO);
                close(pipefd[0]);
                if (execvp(parsedpipe[0], parsedpipe) < 0) {
-                   printf("\nCould not execute command 2..");
+                   fprintf(stderr,"\nCould not execute command 2..");
                    exit(0);
                }
            } else {
@@ -173,7 +248,7 @@ int takeInput(char* str){
    }
 
    int getCmdType(char **parsed) {
-       int NoOfOwnCmds = 7, i, switchOwnArg = 0;
+       int NoOfOwnCmds = 10, i, switchOwnArg = 0;
        char *ListOfOwnCmds[NoOfOwnCmds];
 
        ListOfOwnCmds[0] = "exit";
@@ -184,6 +259,9 @@ int takeInput(char* str){
        ListOfOwnCmds[4] = "b";
        ListOfOwnCmds[5] = "d";
        ListOfOwnCmds[6] = "f";
+       ListOfOwnCmds[7] = "a";
+       ListOfOwnCmds[8] = "c";
+       ListOfOwnCmds[9] = "g";
 
        for (i = 0; i < NoOfOwnCmds; i++) {
            if (strcmp(parsed[0], ListOfOwnCmds[i]) == 0) {
@@ -198,14 +276,17 @@ int takeInput(char* str){
    void ownCmdHandler(char** parsed,int flag){
        char* username;
        pid_t pid = fork();
-       if (pid == 0) {
+       if (pid == -1) {
+           fprintf(stderr, "\nFailed forking child..");
+           return;
+       }else if (pid == 0) {
            switch (flag) {
                case 1:
                    printf("\nGoodbye\n");
                    exit(1);
                case 2:
                    if (chdir(parsed[1]) != 0)
-                       printf("chdir failed");
+                       fprintf(stderr,"chdir failed");
                    exit(2);
                    break;
                case 3:
@@ -229,6 +310,16 @@ int takeInput(char* str){
                case 7:
                    line_counter(parsed[1]);
                    break;
+               case 8:
+                   com_a(parsed[1]);
+                   break;
+               case 9:
+                   com_c(parsed[1]);
+                   break;
+               case 10:
+                   com_g(parsed[1]);
+                   break;
+
                default:
                    break;
            }
