@@ -62,6 +62,23 @@ void remove_spaces(char* path) {
     fclose(ptr);
 }
 
+void remove_comments(char* path) {
+    FILE *ptr;
+    char str[500];
+    ptr = fopen(path, "r");
+
+    if (NULL == ptr) {
+        fprintf(stderr, RED"file can't be opened \n"RESET);
+    }
+
+    while (fgets(str, 500, ptr) != NULL) {
+        if(str[0]!='#')
+            printf("%s", str);
+    }
+
+    fclose(ptr);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
