@@ -108,6 +108,22 @@ void executeComPiped(char** command, char** commandpipe) {
     }
 }
 
+// help
+void helpMe() {
+    printf(CYAN"\n***********WELCOME TO OUR LINUX SHELL***********"
+        GREEN"\nYou can use Linux commands and some additional commands in our shell."
+        "\nThe new commands are as follows:"
+        "\n\tfs => print the first string of each line of input file"
+        "\n\tmw => print the most frequent word in file"
+        "\n\trs => remove empty spaces from file"
+        "\n\trmc => print uncommented lines of file"
+        "\n\tlc => print the number of file lines"
+        "\n\tft => print first ten lines of file"
+        CYAN"\n*************************************************\n"RESET); 
+
+    return;
+}
+
 int chooseCommand(char **command) {
     int nCom = 10;
     int i;
