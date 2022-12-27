@@ -2,6 +2,15 @@
 
 void printLogo();
 
+// print Current Directory
+void getDir(char* out) {
+    char cwd[1024],host[1024],str[3*1024];
+    getcwd(cwd, sizeof(cwd));
+    gethostname(host, sizeof(host));
+    char* user = getenv("USER");
+    sprintf(out, "\n" GREEN "%s@%s" CYAN "(%s)" RESET ": ", user, host, cwd);
+}
+
 // get input from user
 int getInput(char* str){
     char* history;
