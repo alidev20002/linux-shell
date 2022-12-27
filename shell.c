@@ -79,6 +79,12 @@ void remove_comments(char* path) {
     fclose(ptr);
 }
 
+void line_counter(char* file) {
+    char cmd[100];
+    sprintf(cmd,"wc -l %s | cut -d \" \" -f1",file);
+    system(cmd);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
