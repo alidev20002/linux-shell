@@ -1,4 +1,20 @@
 #include <stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+#include<readline/readline.h>
+#include<readline/history.h>
+#include<signal.h>
+
+#define RED "\033[1;31m"
+#define GREEN "\033[1;92m"
+#define CYAN "\033[0;96m"
+#define RESET "\033[0m"
+
+#define INPUT_SIZE 1000 // Maximum number of letters
+#define COMMANDS 100 // Maximum number of commands
 
 void printLogo();
 
