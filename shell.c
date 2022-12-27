@@ -42,6 +42,26 @@ void most_word(char* file) {
     system(cmd);
 }
 
+void remove_spaces(char* path) {
+    FILE* ptr;
+    char ch;
+
+    ptr = fopen(path, "r");
+
+    if (NULL == ptr) {
+        fprintf(stderr, RED"file can't be opened \nuse this command as follow:\n\trs [path of your file]\n"RESET);
+    }
+
+
+    while (!feof(ptr)) {
+        ch = fgetc(ptr);
+        if (ch != ' ' && ch != '\n' && ch != '\t'  && ch!='\r' && ch!=EOF) {
+          printf("%c", ch);
+        }
+    }
+    fclose(ptr);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
