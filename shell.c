@@ -2,6 +2,228 @@
 
 void printLogo();
 
+// get input from user
+int getInput(char* str){
+    char* history;
+    char com[2000];
+    getDir(com);
+    history = readline(com);
+    if (strlen(history) != 0) {
+        save_command(history);
+        add_history(history);
+        strcpy(str, history);
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+// execute command
+void executeCom(char** command) {
+    // forking a child
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        fprintf(stderr, RED"\nFailed forking child.."RESET);
+        return;
+    } else if (pid == 0) {
+        if (execvp(command[0], command) < 0) {
+            fprintf(stderr, RED"\nCould not execute command.."RESET);
+        }
+        exit(0);
+    } else {
+        // waiting for child to terminate
+        wait(NULL);
+        return;
+    }
+}
+
+// execute piped commands
+void executeComPiped(char** command, char** commandpipe) {
+ 
+    int pipes[2];
+    pid_t pid1, pid2;
+
+    if (pipe(pipes) < 0) {
+        fprintf(stderr, RED"\nPipe could not be initialized"RESET);
+        return;
+    }
+    pid1 = fork();
+    if (pid1 < 0) {
+        fprintf(stderr, RED"\nCould not fork"RESET);
+        return;
+    }
+
+    if (pid1 == 0) {
+        // child 1
+        close(pipes[0]);
+        dup2(pipes[1], STDOUT_FILENO);
+        close(pipes[1]);
+        if (execvp(command[0], command) < 0) {
+            fprintf(stderr, RED"\nCould not execute command 1.."RESET);
+            exit(0);
+        }
+    } else {
+        // parent
+        pid2 = fork();
+
+        if (pid2 < 0) {
+            fprintf(stderr, RED"\nCould not fork"RESET);
+            return;
+        }
+
+        // child 2
+        if (pid2 == 0) {
+            close(pipes[1]);
+            dup2(pipes[0], STDIN_FILENO);
+            close(pipes[0]);
+            if (execvp(commandpipe[0], commandpipe) < 0) {
+                fprintf(stderr, RED"\nCould not execute command 2.."RESET);
+                exit(0);
+            }
+        } else {
+            // parent wait for two children
+            wait(NULL);
+            wait(NULL);
+        }
+    }
+}
+
+int chooseCommand(char **command) {
+    int nCom = 10;
+    int i;
+    int type = 0;
+    char *commandList[nCom];
+
+    commandList[0] = "exit";
+    commandList[1] = "cd";
+    commandList[2] = "help";
+    commandList[3] = "hello";
+    commandList[4] = "fs";
+    commandList[5] = "mw";
+    commandList[6] = "rs";
+    commandList[7] = "rmc";
+    commandList[8] = "lc";
+    commandList[9] = "ft";
+
+    for (i = 0; i < nCom; i++) {
+        if (strcmp(command[0], commandList[i]) == 0) {
+            type = i + 1;
+            break;
+        }
+    }
+    return type;
+}
+
+// execute additional commands
+void handler(char** command,int flag) {
+    char* username;
+    pid_t pid = fork();
+    if (pid == -1) {
+        fprintf(stderr, RED"\nFailed forking child.."RESET);
+        return;
+    }else if (pid == 0) {
+        switch (flag) {
+            case 1:
+                printf("\nGoodbye\n");
+                exit(1);
+            case 2:
+                if (chdir(command[1]) != 0)
+                    fprintf(stderr, RED"chdir failed"RESET);
+                exit(2);
+                break;
+            case 3:
+                helpMe();
+                break;
+            case 4:
+                username = getenv("USER");
+                printf("\nHello %s.\n", username);
+                break;
+            case 5:
+                first_str(command[1]);
+                break;
+            case 6:
+                most_word(command[1]);
+                break;
+            case 7:
+                remove_spaces(command[1]);
+                break;
+            case 8:
+                remove_comments(command[1]);
+                break;
+            case 9:
+                line_counter(command[1]);
+                break;
+            case 10:
+                first_ten(command[1]);
+                break;
+            default:
+                break;
+        }
+        exit(0);
+    } else if(pid>0){
+        int stat;
+        wait(&stat);
+        if(WEXITSTATUS(stat)==1)
+            exit(0);
+        else if(WEXITSTATUS(stat)==2)
+            chdir(command[1]);
+    }
+}
+
+// find pipe for pipelined commands
+int findPipe(char* str, char** piped) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        piped[i] = strsep(&str, "|");
+        if (piped[i] == NULL)
+            break;
+    }
+
+    if (piped[1] == NULL)
+        // no pipe found
+        return 0; 
+    else {
+        return 1;
+    }
+}
+
+// get command words
+void getCommandWords(char* str, char** command) {
+    int i;
+    for (i = 0; i < COMMANDS; i++) {
+        command[i] = strsep(&str, " ");
+
+        if (command[i] == NULL)
+            break;
+        if (strlen(command[i]) == 0)
+            i--;
+    }
+}
+
+// proccess string for pipelined commands
+int processString(char* str, char** command, char** commandpipe) {
+
+    char* pipes[2];
+    int piped = 0;
+
+    piped = findPipe(str, pipes);
+
+    if (piped) {
+        getCommandWords(pipes[0], command);
+        getCommandWords(pipes[1], commandpipe);
+
+    }else {
+        getCommandWords(str, command);
+    }
+    int type = chooseCommand(command);
+    if (type > 0) {
+        handler(command,type);
+        return 0;
+    }else
+        return 1 + piped;
+}
+
 int main() {
 
 	return 0;
