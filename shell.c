@@ -2,6 +2,16 @@
 
 void printLogo();
 
+// clear everything and initialize shell
+void init(){
+    system("clear");
+    printLogo();
+    load_history();
+    char* username = getenv("USER");
+    printf("\n\nUsername: @%s", username);
+    printf("\n");
+}
+
 // print Current Directory
 void getDir(char* out) {
     char cwd[1024],host[1024],str[3*1024];
