@@ -374,6 +374,12 @@ int processString(char* str, char** command, char** commandpipe) {
         return 1 + piped;
 }
 
+void handle_sigint(int sig) {
+    rl_reset_line_state();
+    rl_replace_line("", 0);
+    rl_redisplay();
+}
+
 int main() {
     char input[INPUT_SIZE];
     char *commandParams[COMMANDS];
