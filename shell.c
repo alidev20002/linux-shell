@@ -18,10 +18,14 @@
 
 void printLogo();
 
+char path[1024];
+
 void load_history(){
     FILE *ptr;
-    char str[500];
-    ptr = fopen("history.txt", "r");
+    char str[500],cwd[500];
+    strcat(path, getcwd(cwd,sizeof(cwd)));
+    strcat(path,"/history.txt");
+    ptr = fopen(path, "r");
 
     if (NULL == ptr) {
         return;
@@ -133,8 +137,8 @@ void init(){
     printf("\n");
 }
 
-// print Current Directory
-void getDir(char* out) {
+// get username and Current Directory
+void getPrompt(char* out) {
     char cwd[1024],host[1024],str[3*1024];
     getcwd(cwd, sizeof(cwd));
     gethostname(host, sizeof(host));
@@ -144,7 +148,7 @@ void getDir(char* out) {
 
 // save command in history file
 void save_command(char* com){
-    FILE* file= fopen("history.txt","a");
+    FILE* file= fopen(path,"a");
     if (NULL == file) {
         fprintf(stderr, RED"file can't be opened \n"RESET);
     }
@@ -154,14 +158,14 @@ void save_command(char* com){
 
 // get input from user
 int getInput(char* str){
-    char* history;
-    char com[2000];
-    getDir(com);
-    history = readline(com);
-    if (strlen(history) != 0) {
-        save_command(history);
-        add_history(history);
-        strcpy(str, history);
+    char* cmd;
+    char prompt[2000];
+    getPrompt(prompt);
+    cmd = readline(prompt);
+    if (strlen(cmd) != 0) {
+        save_command(cmd);
+        add_history(cmd);
+        strcpy(str, cmd);
         return 0;
     } else {
         return 1;
