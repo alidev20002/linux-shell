@@ -260,8 +260,25 @@ int processString(char* str, char** command, char** commandpipe) {
 }
 
 int main() {
-
-	return 0;
+    char input[INPUT_SIZE];
+    char *commandParams[COMMANDS];
+    char* commandParamsPiped[COMMANDS];
+    int flag = 0;
+    signal(SIGINT, handle_sigint);
+    init();
+    while (1) {
+        if (getInput(input))
+            continue;
+        flag = processString(input, commandParams, commandParamsPiped);
+        
+        // simple command
+        if (flag == 1)
+            executeCom(commandParams);
+        // piped command 
+        if (flag == 2)
+            executeComPiped(commandParams, commandParamsPiped);
+    }
+    return 0;
 }
 
 void printLogo(){
