@@ -36,6 +36,12 @@ void first_str(char* path) {
     fclose(ptr);
 }
 
+void most_word(char* file) {
+    char cmd[100];
+    sprintf(cmd,"sort %s | uniq -c | sort -r | head -n1 | cut -d \" \" -f8",file);
+    system(cmd);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
