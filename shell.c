@@ -2,6 +2,22 @@
 
 void printLogo();
 
+void load_history(){
+    FILE *ptr;
+    char str[500];
+    ptr = fopen("history.txt", "r");
+
+    if (NULL == ptr) {
+        return;
+    }
+
+    while (fgets(str, 500, ptr) != NULL) {
+        str[strcspn(str, "\r\n")] = 0;
+        add_history(str);
+    }
+    fclose(ptr);
+}
+
 void first_str(char* path) {
     FILE* ptr;
     char ch;
