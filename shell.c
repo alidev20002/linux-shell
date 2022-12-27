@@ -85,6 +85,12 @@ void line_counter(char* file) {
     system(cmd);
 }
 
+void first_ten(char* file){
+    char cmd[100];
+    sprintf(cmd,"head %s",file);
+    system(cmd);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
