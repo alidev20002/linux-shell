@@ -110,6 +110,16 @@ void getDir(char* out) {
     sprintf(out, "\n" GREEN "%s@%s" CYAN "(%s)" RESET ": ", user, host, cwd);
 }
 
+// save command in history file
+void save_command(char* com){
+    FILE* file= fopen("history.txt","a");
+    if (NULL == file) {
+        fprintf(stderr, RED"file can't be opened \n"RESET);
+    }
+    fprintf(file,"%s\n",com);
+    fclose(file);
+}
+
 // get input from user
 int getInput(char* str){
     char* history;
