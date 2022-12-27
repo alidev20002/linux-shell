@@ -2,6 +2,40 @@
 
 void printLogo();
 
+void first_str(char* path) {
+    FILE* ptr;
+    char ch;
+    int next = 1;
+    int newline = 1;
+
+    ptr = fopen(path, "r");
+
+    if (NULL == ptr) {
+        fprintf(stderr, RED"file can't be opened \nuse this command as follow:\n\tfs [path of your file]\n"RESET);
+    }
+
+    while (!feof(ptr)) {
+        ch = fgetc(ptr);
+        if (ch == ' ') {
+            if (next) {
+                newline = 0;
+                printf("\n");
+            }
+            next = 0;
+        }else if (ch == '\n') {
+            if (newline) {
+                printf("\n");
+            }
+            newline = 1;
+            next = 1;
+        }
+        if (next && ch != ' ' && ch != '\n' && ch!=EOF) {
+            printf("%c", ch);
+        }
+    }
+    fclose(ptr);
+}
+
 // clear everything and initialize shell
 void init(){
     system("clear");
