@@ -1,7 +1,16 @@
 # Linux Shell
 
 Our Linux shell supports all Linux commands and a few extra commands.
-
+## Requirements
+use the following command to install readline library before running the shell:
+```bash
+sudo apt-get install libreadline-dev
+```
+## Run
+```bash
+gcc shell.c -lreadline
+./a.out
+```
 ## List of additional commands
 
 * __fs__ → prints the first string of each line of input file
@@ -46,4 +55,3 @@ hello
 * Print errors using stderr
 
 * Customize control-c action
-
